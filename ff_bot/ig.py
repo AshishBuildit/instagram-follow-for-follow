@@ -139,9 +139,16 @@ class Instagram:
             raise _wrap(exc) from exc
 
     def followers(self, user_pk: int, amount: int) -> dict:
-        """{pk: UserShort} - reference page ke followers."""
+        """{pk: UserShort} - reference page ko follow karne wale."""
         try:
             return self.cl.user_followers(user_pk, amount=amount)
+        except Exception as exc:  # noqa: BLE001
+            raise _wrap(exc) from exc
+
+    def following(self, user_pk: int, amount: int) -> dict:
+        """{pk: UserShort} - reference page jinko follow karta hai."""
+        try:
+            return self.cl.user_following(user_pk, amount=amount)
         except Exception as exc:  # noqa: BLE001
             raise _wrap(exc) from exc
 

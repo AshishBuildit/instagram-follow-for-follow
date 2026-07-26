@@ -290,6 +290,28 @@ def scenario_rest_day():
           f"{sim.ig.calls} API calls")
 
 
+def scenario_scrape_source():
+    print("\n9. Reference page ki following list se targets (followers se nahi)")
+    for source in ("following", "followers"):
+        os.environ["SCRAPE_SOURCE"] = source
+        sim = Sim(days=3, real_cap=20)
+        check(f"config padha: {source}", sim.config.SCRAPE_SOURCE == source,
+              f"mila {sim.config.SCRAPE_SOURCE}")
+        sim.seed_refs(2)
+        sim.run()
+        check(f"{source} se DM gaye", len(sim.ig.sent) > 0, f"{len(sim.ig.sent)} DM")
+        check(f"{source} me duplicate nahi",
+              len({p for p, _, _ in sim.ig.sent}) == len(sim.ig.sent))
+    os.environ["SCRAPE_SOURCE"] = "following"
+
+    # Galat value daal do to following par gir jaye, crash na ho
+    os.environ["SCRAPE_SOURCE"] = "kuch_bhi"
+    sim = Sim(days=1)
+    check("galat value -> following", sim.config.SCRAPE_SOURCE == "following",
+          sim.config.SCRAPE_SOURCE)
+    os.environ["SCRAPE_SOURCE"] = "following"
+
+
 def main() -> int:
     print("=" * 70)
     print("NAKLI INSTAGRAM PAR POORA BOT CHALA KAR TEST")
@@ -297,7 +319,7 @@ def main() -> int:
 
     for fn in (scenario_normal, scenario_cap_collapse, scenario_dead_accounts,
                scenario_block, scenario_challenge, scenario_followback,
-               scenario_restart, scenario_rest_day):
+               scenario_restart, scenario_rest_day, scenario_scrape_source):
         fn()
 
     if SANDBOX.exists():

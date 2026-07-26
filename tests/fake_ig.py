@@ -69,7 +69,7 @@ class FakeIG:
         self.sent: list[tuple[int, str, _dt.datetime]] = []
         self.followed: list[int] = []
         self.my_followers_map: dict[int, FakeUser] = {}  # naam `followers` nahi, wo method hai
-        self.following: set[int] = set()
+        self.my_following_set: set[int] = set()  # naam `following` nahi, wo method hai
         self.challenge_next = False
         self.block_next = False
         self.calls = 0
@@ -110,16 +110,23 @@ class FakeIG:
         # Har reference page ka alag id, taki unke followers bhi alag hon
         return 5000 + (hash(username) % 1000)
 
-    def followers(self, user_pk, amount):
-        self.calls += 1
+    def _slice(self, user_pk, amount, offset=0):
         # Alag ref = alag slice. Warna queue ek hi 300 logon par atak jati hai
         # aur test jhooth bolta hai ki "rest day aaye" jabki asal me targets khatam the.
         items = list(self.users.items())
         if not items:
             return {}
-        start = (user_pk * 37) % len(items)
+        start = (user_pk * 37 + offset) % len(items)
         rotated = items[start:] + items[:start]
         return dict(rotated[:amount])
+
+    def followers(self, user_pk, amount):
+        self.calls += 1
+        return self._slice(user_pk, amount)
+
+    def following(self, user_pk, amount):
+        self.calls += 1
+        return self._slice(user_pk, amount, offset=13)
 
     def user_info(self, pk):
         self.calls += 1
@@ -144,7 +151,7 @@ class FakeIG:
 
     def my_following_pks(self):
         self.calls += 1
-        return set(self.following)
+        return set(self.my_following_set)
 
     def send_dm(self, pk, text):
         self.calls += 1
@@ -160,7 +167,7 @@ class FakeIG:
         self.calls += 1
         self._maybe_raise()
         self.followed.append(pk)
-        self.following.add(pk)
+        self.my_following_set.add(pk)
 
     # --- test helper ---
 

@@ -1,0 +1,10 @@
+# Shell scripts hamesha LF ke saath. CRLF ke saath Termux/Linux par
+# "bad interpreter: ...bash^M" error aata hai aur script chalti hi nahi.
+*.sh text eol=lf
+*.py text eol=lf
+*.md text eol=lf
+requirements.txt text eol=lf
+.env.example text eol=lf
+
+# Windows wali batch file ko CRLF hi chahiye
+*.bat text eol=crlf

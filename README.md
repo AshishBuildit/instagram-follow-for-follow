@@ -66,6 +66,12 @@ ek bande ko dobara kabhi DM nahi.
 
 ## Bot kaise chunta hai kisko DM kare
 
+Targets reference page ki **following** list se aate hain, yaani wo log jinko wo page follow
+karta hai. `.env` me `SCRAPE_SOURCE=followers` karke ulta bhi kar sakte ho.
+
+Following list chhoti hoti hai (aksar kuch sau), followers list hazaron ki. Isliye following
+use kar rahe ho to **10-15 reference pages zarur rakhna**, warna targets jaldi khatam ho jayenge.
+
 Pehle sasta filter (koi API call nahi): private, verified, bina profile pic wale nikal do.
 
 Phir har candidate par:
@@ -111,21 +117,31 @@ Dono kahin note kar lo, abhi chahiye honge.
 
 ### Step 3: Termux me setup chalao
 
-Termux kholo aur ye 4 lines:
+Termux kholo aur bas ye **ek line** paste karo:
 
 ```bash
-pkg install -y git
-git clone <apka-repo-url> ~/ff-bot
-cd ~/ff-bot
-bash scripts/install-termux.sh
+pkg install -y git && git clone <apka-repo-url> ~/ff-bot && cd ~/ff-bot && bash setup.sh
 ```
 
-**Folder `~/ff-bot` me hi rakhna, Downloads ya SD card me nahi.** Shared storage par
-SQLite ka file locking bharosemand nahi hai aur database kharab ho sakta hai. Setup
-script wahan chalne se mana kar degi.
+Ye sab kuch khud kar dega: packages, python libraries, widget shortcut, boot script, `.env`.
 
-Script khud sab kar degi: packages, python libraries, widget shortcut, boot script, `.env`.
-Pehli baar **10-20 minute** lag sakte hain (rust compile hota hai). Screen band mat karna.
+**Ye script jitni baar chaho chala sakte ho.** Har step pehle check karta hai ki kaam ho
+chuka hai ya nahi. Jo ho gaya wo dobara nahi hoga, sirf jo bacha hai wahi hoga:
+
+```bash
+bash setup.sh
+```
+
+Beech me build ruk jaye, phone hang ho jaye, ya net chala jaye to bas yahi dobara chala do.
+Pehle ka kaam bacha rehta hai.
+
+**Folder `~/ff-bot` me hi rakhna, Downloads ya SD card me nahi.** Shared storage par
+SQLite ka file locking bharosemand nahi hai aur database kharab ho sakta hai. Script
+wahan chalne se mana kar degi.
+
+Pehli baar **20-40 minute** lag sakte hain. Android ke liye pydantic ki ready wheel nahi
+banti, isliye wo Rust me compile hota hai. Screen band mat karna, charger laga lena.
+Ek baar ban jaye to cache me reh jata hai, dobara kabhi nahi banega.
 
 ### Step 4: `.env` bharo
 
@@ -317,8 +333,18 @@ phir phone restart karke dekho. Bina khole ye kaam nahi karta.
 **Bot band karke phir chalaya, wapas warmup Day 1 par aa gaya** → aapne `data/` folder
 delete kar diya hoga. Wo folder hi bot ki yaadash hai, use mat chhedna.
 
-**`ERROR: Installing pip is forbidden`** → purani script thi. `git pull` karke dobara
-`bash scripts/install-termux.sh` chalao.
+Setup ki lagbhag har dikkat ka ek hi jawab hai: **`bash setup.sh` dobara chala do.**
+Wo dekh lega ki kya bacha hai. Neeche wajah samajhne ke liye:
+
+| Error | Wajah | Fix |
+|---|---|---|
+| `Installing pip is forbidden` | Termux apne pip ko protect karta hai | `bash setup.sh` (script ab pip upgrade nahi karti) |
+| `Failed to determine Android API level` | Rust ko Android version nahi mila | `bash setup.sh` (script ab set karti hai) |
+| `headers or library files could not be found for jpeg` | Pillow source se ban raha tha | `bash setup.sh` (ab `python-pillow` pkg se aata hai, banta hi nahi) |
+| Build beech me mara, phone hang | RAM kam padi | `CARGO_BUILD_JOBS=1 bash setup.sh` |
+
+Ek baar bana hua pydantic wheel cache me reh jata hai. Isliye baar baar retry karne par
+bhi wo 20-40 min dobara nahi lagta.
 
 **`RUKO. Ye folder shared storage me hai`** → repo ko `~/ff-bot` me le jao:
 `cp -r <purana folder> ~/ff-bot && cd ~/ff-bot && bash scripts/install-termux.sh`

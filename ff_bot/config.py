@@ -108,6 +108,13 @@ SKIP_NO_PROFILE_PIC = True
 CHECK_ACTIVITY = _bool("CHECK_ACTIVITY", True)
 MAX_LAST_POST_DAYS = 21
 
+# Reference page ki konsi list se log uthane hain
+#   following = wo log jinko reference page follow karta hai
+#   followers = wo log jo reference page ko follow karte hain
+SCRAPE_SOURCE = os.getenv("SCRAPE_SOURCE", "following").strip().lower()
+if SCRAPE_SOURCE not in ("following", "followers"):
+    SCRAPE_SOURCE = "following"
+
 # Ek scrape me ek reference page se max itne log uthao
 SCRAPE_PER_REF = 300
 # Queue itne se neeche gire to apne aap dobara scrape

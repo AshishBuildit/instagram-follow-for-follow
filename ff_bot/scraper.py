@@ -56,18 +56,21 @@ def is_alive(ig: Instagram, pk: int, info) -> tuple[bool, str]:
 
 
 def scrape_ref(ig: Instagram, username: str, my_following: set[int]) -> int:
-    """Ek reference page ke followers queue me daalo. Kitne naye mile wo return."""
+    """Ek reference page ki list se targets queue me daalo. Kitne naye mile wo return."""
     try:
         ref_pk = ig.user_id(username)
-        followers = ig.followers(ref_pk, amount=config.SCRAPE_PER_REF)
+        if config.SCRAPE_SOURCE == "followers":
+            people = ig.followers(ref_pk, amount=config.SCRAPE_PER_REF)
+        else:
+            people = ig.following(ref_pk, amount=config.SCRAPE_PER_REF)
     except (BlockSignal, ChallengeSignal, DailyCapSignal):
         raise
     except IGError as exc:
         log.warning("@%s scan fail: %s", username, exc)
         return -1
 
-    items = list(followers.items())
-    random.shuffle(items)  # hamesha top followers hi nahi
+    items = list(people.items())
+    random.shuffle(items)  # hamesha list ke upar wale hi nahi
 
     added = 0
     for pk, user in items:
@@ -83,7 +86,7 @@ def scrape_ref(ig: Instagram, username: str, my_following: set[int]) -> int:
             added += 1
 
     db.mark_ref_scraped(username, added)
-    log.info("@%s se %s naye targets", username, added)
+    log.info("@%s ki %s list se %s naye targets", username, config.SCRAPE_SOURCE, added)
     return added
 
 
