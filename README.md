@@ -1,14 +1,14 @@
 # Follow-for-Follow DM Bot
 
-Reference Instagram pages ke **active** followers ko roz, limit ke andar, DM bhejne wala bot.
-Control Telegram se. Phone par ek tap me chalu.
+Reference Instagram pages ki following list me se **active** logon ko roz, limit ke andar,
+DM bhejne wala bot. Control Telegram se. Phone par ek tap me chalu.
 
 ---
 
 ## Pehle ye padho
 
-1. **Ye Instagram ke Terms ke against hai.** Cold DM ka koi official API nahi hai, isliye ye bot
-   private API use karta hai.
+1. **Ye Instagram ke Terms ke against hai.** Cold DM ka koi official API nahi hai, isliye ye
+   bot private API use karta hai.
 2. **Risk real hai.** Followers main account par chahiye to DM bhi wahi se jane padenge, isme
    shortcut nahi. Chalane se pehle **2FA on karo** aur email/phone verified rakho.
 3. **Limits mat badhao.** Bot khud aapke account ka limit dhoond leta hai, uspar bharosa karo.
@@ -56,11 +56,12 @@ isliye "naya din" samajh ke dobara full speed nahi chalta.
 | Aage | 22-28 | 33-40 |
 | Per hour | 4 | 8 |
 | DM ke beech gap | 150-600 sec | 100-360 sec |
+| Follow-back roz | 15 | 25 |
 
-Ye upper limit hai. Neeche wala asli cap hamesha jeetta hai.
+Ye upper limit hai. Upar wala asli cap hamesha jeetta hai.
 
-Baaki: sirf 11 baje se 10 baje raat tak, har 6-7 din me ek rest day, follow-back roz 25 tak,
-ek bande ko dobara kabhi DM nahi.
+Baaki: sirf 11 baje se 10 baje raat tak, har 6-7 din me ek rest day, ek bande ko dobara
+kabhi DM nahi.
 
 ---
 
@@ -70,7 +71,7 @@ Targets reference page ki **following** list se aate hain, yaani wo log jinko wo
 karta hai. `.env` me `SCRAPE_SOURCE=followers` karke ulta bhi kar sakte ho.
 
 Following list chhoti hoti hai (aksar kuch sau), followers list hazaron ki. Isliye following
-use kar rahe ho to **10-15 reference pages zarur rakhna**, warna targets jaldi khatam ho jayenge.
+use kar rahe ho to **10-15 reference pages zarur rakhna**, warna targets jaldi khatam honge.
 
 Pehle sasta filter (koi API call nahi): private, verified, bina profile pic wale nikal do.
 
@@ -85,8 +86,7 @@ Phir har candidate par:
 | Story nahi to last post 21 din se purani? | dead account, chhod do |
 
 Story wala check hi wo cheez hai jo bot accounts ko chhanta hai. Isse DM kam jayenge par
-sahi logon ko jayenge. Tez chahiye aur quality ki parwah nahi to `.env` me
-`CHECK_ACTIVITY=false`.
+sahi logon ko jayenge. Tez chahiye aur quality ki parwah nahi to `CHECK_ACTIVITY=false`.
 
 ---
 
@@ -120,7 +120,7 @@ Dono kahin note kar lo, abhi chahiye honge.
 Termux kholo aur bas ye **ek line** paste karo:
 
 ```bash
-pkg install -y git && git clone <apka-repo-url> ~/ff-bot && cd ~/ff-bot && bash setup.sh
+pkg install -y git && git clone https://github.com/AshishBuildit/instagram-follow-for-follow.git ~/ff-bot && cd ~/ff-bot && bash setup.sh
 ```
 
 Ye sab kuch khud kar dega: packages, python libraries, widget shortcut, boot script, `.env`.
@@ -129,7 +129,7 @@ Ye sab kuch khud kar dega: packages, python libraries, widget shortcut, boot scr
 chuka hai ya nahi. Jo ho gaya wo dobara nahi hoga, sirf jo bacha hai wahi hoga:
 
 ```bash
-bash setup.sh
+cd ~/ff-bot && bash setup.sh
 ```
 
 Beech me build ruk jaye, phone hang ho jaye, ya net chala jaye to bas yahi dobara chala do.
@@ -192,9 +192,9 @@ Shaam ko widget dabao
 
 Bas itna hi. Terminal me kuch type nahi karna.
 
-Bot do surat me khud band hota hai: **3 ghante kaam ke pure hone par**, ya **raat 10 baje
-active window khatam hone par** (jo pehle aa jaye). Dusra isliye ki raat bhar khali chalte
-rehna phone ki battery kha jata hai.
+Bot do surat me khud band hota hai: **`RUN_HOURS` (`.env` me 3) kaam ke ghante pure hone par**,
+ya **raat 10 baje active window khatam hone par** (jo pehle aa jaye). Dusra isliye ki raat bhar
+khali chalte rehna phone ki battery kha jata hai.
 
 **Beech me band karna ho:** Telegram par `/stop`.
 
@@ -220,8 +220,8 @@ Kuch nahi karna. Termux:Boot bot ko apne aap chalu kar dega, 30 second baad, aur
 kaam shuru hoga jahan chhoda tha.
 
 Agar restart aadhi raat ko hua to bot chalu to ho jayega par kaam nahi karega, kyunki active
-window (11 baje se 10 baje raat) ke bahar hai. `RUN_HOURS` ka 3 ghante ka counter bhi tabhi
-chalta hai jab bot sach me kaam kar raha ho, to raat ka waqt zaya nahi hota.
+window ke bahar hai. `RUN_HOURS` ka counter bhi tabhi chalta hai jab bot sach me kaam kar raha
+ho, to raat ka waqt zaya nahi hota.
 
 ### Do baar widget daba diya to
 
@@ -230,10 +230,33 @@ jayega. Do bot ek saath chalna sabse khatarnak cheez hoti, isliye ye guard laga 
 
 ---
 
+## Follow-back kaise kaam karta hai
+
+Har session ke shuru me, DM se pehle chalta hai. Naye follower ko turant follow back milna
+chahiye, warna wo unfollow kar deta hai.
+
+**Pehli baar:** aapke maujuda saare followers ko "done" mark kar deta hai, bina kisi ko follow
+kiye. Ye zaruri hai, warna bot pehle hi din 2000 purane followers ko ek saath follow karne
+lagta aur wo instant ban hai. Pehle din follow-back kuch nahi karega, sirf list banayega.
+
+**Uske baad:** naye followers detect karke ek ek karke follow karta hai, 60 se 200 second ke
+random gap ke saath, roz max 25 (warm mode).
+
+Ye **sirf naye followers** ko follow karta hai. Reference pages ke logon ko blindly follow
+nahi karta, wo aggressive follow/unfollow hota hai aur ban ka sabse bada karan hai.
+
+Jo follow karke turant unfollow kar de, use bot **unfollow nahi karega**. Mass unfollow
+follow se bhi strong spam signal hai. Aise logon ko kabhi kabhi manually saaf kar lena.
+
+Band karna ho to `.env` me `FOLLOWBACK_ENABLED=false`.
+
+---
+
 ## Telegram commands
 
 | Command | Kaam |
 |---|---|
+| `/start` `/help` | Menu aur saari commands |
 | `/status` | Aaj kitne gaye, kitne bache, account ka limit |
 | `/refs` | Reference pages ki list |
 | `/addref username` | Naye page add (ek saath kai bhi) |
@@ -254,8 +277,39 @@ jayega. Do bot ek saath chalna sabse khatarnak cheez hoti, isliye ye guard laga 
 `|` se alag karo, bot randomly ek chunega. **Ye zaruri hai.** Bilkul same text baar baar
 bhejna Instagram ka sabse aasan spam signal hai.
 
-`{name}` me bande ka pehla naam aayega. Naam na ho to username se guess kar lega
-(`priya_23` → `Priya`).
+`{name}` me bande ka pehla naam aayega:
+
+| Profile | Message |
+|---|---|
+| Naam `Priya Sharma 🌸` | Hey **Priya**, follow for follow? |
+| Naam khali, username `vovan.editz` | Hey **Vovan**, follow for follow? |
+| Naam khali, username `xx_007_xx` | **Hey, follow for follow?** |
+
+Bharosemand naam na mile to bot bina naam ka saaf message bhejta hai. "Hey User" ya
+"Hey Photography" jaisa kuch nahi jayega, wo turant bot jaisa lagta hai.
+
+---
+
+## `.env` ki saari settings
+
+| Setting | Default | Kya karta hai |
+|---|---|---|
+| `IG_USERNAME` | - | Instagram username |
+| `IG_PASSWORD` | - | Instagram password |
+| `TELEGRAM_TOKEN` | - | @BotFather se |
+| `TELEGRAM_OWNER_ID` | - | @userinfobot se. Sirf ye id bot chala sakti hai |
+| `DRY_RUN` | `true` | `true` = kuch actually send nahi hoga. Apni alag DB use karta hai |
+| `ACCOUNT_MODE` | `warm` | `warm` ya `new`. Speed profile |
+| `RUN_HOURS` | `3` | Itne kaam ke ghante baad bot khud band. `0` = kabhi nahi. (Code ka default `0` hai, par `.env.example` me `3` hai) |
+| `SCRAPE_SOURCE` | `following` | `following` ya `followers`. Kahan se targets uthane hain |
+| `CHECK_ACTIVITY` | `true` | Story/recent post check karke dead accounts skip karo |
+| `FOLLOWBACK_ENABLED` | `true` | Naye followers ko auto follow back |
+| `ACTIVE_START_HOUR` | `11` | Kaam kab se shuru |
+| `ACTIVE_END_HOUR` | `22` | Kaam kab tak |
+| `LOG_LEVEL` | `INFO` | `WARNING` karoge to terminal lagbhag khali |
+
+Limits (per hour, warmup curve, cap discovery) `ff_bot/config.py` me hain. Unhe chhedna
+matlab ban ka risk badhana.
 
 ---
 
@@ -263,9 +317,9 @@ bhejna Instagram ka sabse aasan spam signal hai.
 
 **Reference pages kaise chuno**
 
-- Aapke niche ke chhote-medium creators (5k-50k). Bade pages ke followers zyadatar dead hote hain.
+- Aapke niche ke chhote-medium creators (5k-50k). Bade pages ki list zyadatar dead hoti hai.
 - 10-15 pages rakho, sirf 1-2 nahi. Ek hi page se sabko DM jayega to pattern ban jata hai.
-- Aisa page jiske followers **aapke jaise log** hon, warna follow karke unfollow kar denge.
+- Aisa page jise **aapke jaise log** follow karte hon, warna follow karke unfollow kar denge.
 
 **Roz**
 
@@ -279,21 +333,6 @@ bhejna Instagram ka sabse aasan spam signal hai.
 - Message me link daalna. Link + cold DM = double spam signal.
 - Ek din me kai baar chalu band karna. Ek session, phir chhod do.
 - Do account ek saath chalana ek hi phone se.
-
----
-
-## Test
-
-Code badalne ke baad ye chalao. Nakli Instagram par poora bot 30 din tak chalta hai
-aur check karta hai ki koi limit toot to nahi rahi:
-
-```bash
-python tests/simulate.py
-```
-
-Ye asli Instagram ko chhuta bhi nahi. 8 scenario check hote hain: normal chalna, cap
-discovery, sab targets dead, spam block, login challenge, follow-back, baar baar restart,
-aur 30 din ka lamba run.
 
 ---
 
@@ -312,76 +351,109 @@ lag jayenge, aur warmup skip ho jayega.
 
 ## Jab kuch galat ho
 
+### Chalte waqt
+
 | Telegram par ye aaye | Matlab | Kya karo |
 |---|---|---|
-| "Aaj ke liye Instagram ne rok diya" | roz ka naya-chat cap | Kuch nahi. Kal apne aap chalu ho jayega, aur kal ka target kam kar diya gaya hai. |
-| "Instagram ne rok diya hai" (48 ghante) | asli spam block | 2 din bot mat chalao. App se normal use karo. Phir `/resume`. |
+| "Aaj ke liye Instagram ne rok diya" | roz ka naya-chat cap | Kuch nahi. Kal apne aap chalu hoga, aur kal ka target kam kar diya gaya hai |
+| "Instagram ne rok diya hai" (48 ghante) | asli spam block | 2 din bot mat chalao. App se normal use karo. Phir `/resume` |
 | "Instagram login verify maang raha hai" | challenge | App kholo, confirm karo, phir `/resume` |
 | "Targets khatam ho gaye" | queue khali | `/addref` se naye pages daalo |
-| Bot chup ho gaya | Android ne maar diya | Battery Unrestricted check karo |
+| "koi DM ke layak nahi mila" | sab dead/bot accounts | Naye pages daalo, ya `CHECK_ACTIVITY=false` |
 | "Bot pehle se chal raha hai" | do baar widget daba diya | Kuch nahi, ye sahi hai |
+| Bot chup ho gaya | Android ne maar diya | Battery Unrestricted check karo |
 
-Detail me dekhna ho to `data/ff.log` file me poora record hota hai.
-Restart ke baad wala log `data/boot.log` me.
+Poora record `data/ff.log` me. Restart ke baad wala log `data/boot.log` me.
 
-**Widget me ff-bot nahi dikh raha** → Termux:Widget install hai? Setup script chalaya tha?
-Dobara chalao: `cd ~/ff-bot && bash scripts/install-termux.sh`
+### Setup ke waqt
 
-**Restart par apne aap chalu nahi hua** → Termux:Boot app ko ek baar khol ke band karo,
-phir phone restart karke dekho. Bina khole ye kaam nahi karta.
-
-**Bot band karke phir chalaya, wapas warmup Day 1 par aa gaya** → aapne `data/` folder
-delete kar diya hoga. Wo folder hi bot ki yaadash hai, use mat chhedna.
-
-Setup ki lagbhag har dikkat ka ek hi jawab hai: **`bash setup.sh` dobara chala do.**
-Wo dekh lega ki kya bacha hai. Neeche wajah samajhne ke liye:
+Lagbhag har dikkat ka ek hi jawab hai: **`bash setup.sh` dobara chala do.** Wo dekh lega ki
+kya bacha hai. Wajah samajhne ke liye:
 
 | Error | Wajah | Fix |
 |---|---|---|
-| `Installing pip is forbidden` | Termux apne pip ko protect karta hai | `bash setup.sh` (script ab pip upgrade nahi karti) |
-| `Failed to determine Android API level` | Rust ko Android version nahi mila | `bash setup.sh` (script ab set karti hai) |
-| `headers or library files could not be found for jpeg` | Pillow source se ban raha tha | `bash setup.sh` (ab `python-pillow` pkg se aata hai, banta hi nahi) |
+| `Installing pip is forbidden` | Termux apne pip ko protect karta hai | `bash setup.sh` |
+| `Failed to determine Android API level` | Rust ko Android version nahi mila | `bash setup.sh` |
+| `headers or library files could not be found for jpeg` | Pillow source se ban raha tha | `bash setup.sh` (ab prebuilt aata hai) |
+| `bad interpreter: ...bash^M` | file Windows line endings ke saath aayi | `git pull` (repo me `.gitattributes` hai) |
 | Build beech me mara, phone hang | RAM kam padi | `CARGO_BUILD_JOBS=1 bash setup.sh` |
+| `RUKO. Ye folder shared storage me hai` | SD card se chala rahe ho | `cp -r <folder> ~/ff-bot && cd ~/ff-bot && bash setup.sh` |
 
-Ek baar bana hua pydantic wheel cache me reh jata hai. Isliye baar baar retry karne par
-bhi wo 20-40 min dobara nahi lagta.
+Ek baar bana hua pydantic wheel cache me reh jata hai, isliye retry par wo 20-40 min dobara
+nahi lagta.
 
-**`RUKO. Ye folder shared storage me hai`** → repo ko `~/ff-bot` me le jao:
-`cp -r <purana folder> ~/ff-bot && cd ~/ff-bot && bash scripts/install-termux.sh`
+**Widget me ff-bot nahi dikh raha** → Termux:Widget install hai? `bash setup.sh` dobara chalao.
+
+**Restart par apne aap chalu nahi hua** → Termux:Boot app ko ek baar khol ke band karo, phir
+phone restart karke dekho. Bina khole ye kaam nahi karta.
+
+**Warmup wapas Day 1 par aa gaya** → `data/` folder delete ho gaya hoga. Wo folder hi bot ki
+yaadash hai, use mat chhedna.
+
+---
+
+## Test
+
+Code badalne ke baad ye chalao:
+
+```bash
+python tests/simulate.py
+```
+
+Nakli Instagram par poora bot 30 din tak chalta hai. Asli Instagram ko chhuta bhi nahi.
+9 scenario, 39 check: normal chalna, cross-midnight cap trap, sab targets dead, spam block,
+login challenge, follow-back, baar baar restart, 30 din ka lamba run, aur dono scrape sources.
+
+Har run me ye niyam check hote hain: rolling 24h cap kabhi nahi tootta, hourly limit nahi
+tootta, kisi ko do baar DM nahi, active window ke bahar kuch nahi jata, aur crash nahi hota.
 
 ---
 
 ## Windows par (fallback)
 
+Phone ke bina test karna ho to:
+
 ```bash
 pip install -r requirements.txt
 ```
 
-`.env` bharo, `run.bat` double click. Agar `pip install` pydantic-core compile karne lage to
-pehle `pip install "pydantic>=2.12"` chalao.
+`.env` bharo, phir `run.bat` double click. `setup.sh` sirf Termux ke liye hai.
+
+Agar `pip install` pydantic-core compile karne lage to pehle `pip install "pydantic>=2.12"`
+chalao.
 
 ---
 
 ## Files
 
 ```
+setup.sh              Termux ka poora setup, jitni baar chaho chalao
+run.bat               Windows par chalane ke liye
+
 ff_bot/
-  config.py      settings, profiles, limits
-  db.py          SQLite
-  ig.py          Instagram engine + error pehchan
-  scraper.py     targets nikalna + quality/activity filter
-  scheduler.py   quota, rest day, cap discovery
-  sender.py      DM bhejna
-  followback.py  follow back
-  telegram.py    control panel
-  worker.py      background loop
-  copy.py        saare messages
+  config.py           settings, speed profiles, limits
+  db.py               SQLite
+  ig.py               Instagram engine + error pehchan
+  scraper.py          targets nikalna + quality/activity filter
+  scheduler.py        quota, rest day, cap discovery
+  sender.py           DM bhejna
+  followback.py       follow back
+  telegram.py         control panel
+  worker.py           background loop
+  lock.py             do bot ek saath na chalein
+  copy.py             saare messages
+
 scripts/
-  install-termux.sh   ek baar ka phone setup
-  ff-bot.sh           one-tap launcher
+  ff-bot.sh           widget wala one-tap launcher
+  boot.sh             restart ke baad apne aap chalu
   reset.py            account badalne par
-data/
-  ff.db, session.json, ff.log
+  install-termux.sh   purana naam, setup.sh ko call karta hai
+
+tests/
+  simulate.py         nakli Instagram par poora bot
+  fake_ig.py          nakli Instagram aur nakli ghadi
+
+data/                 ff.db, session.json, ff.log (kabhi delete mat karna)
 ```
 
 `.env` aur `data/` kabhi commit mat karna. `.gitignore` me pehle se hain.
