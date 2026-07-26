@@ -1,0 +1,7 @@
+# Note: Python 3.12 ya usse upar chahiye.
+# Agar pydantic-core compile karne ki koshish kare to matlab aapke Python version
+# ke liye wheel nahi hai. Tab pehle ye chalao: pip install "pydantic>=2.12"
+instagrapi>=2.18
+python-telegram-bot>=21.9
+python-dotenv>=1.0
+pydantic>=2.12

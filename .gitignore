@@ -1,0 +1,9 @@
+.env
+data/
+__pycache__/
+*.pyc
+*.log
+.venv/
+venv/
+data-backup-*/
+tests/_sandbox/
